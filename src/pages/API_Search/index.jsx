@@ -1,4 +1,4 @@
-import React, { useState, } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Main,ApiFormControl } from './styles';
 import { Button, Input, Table } from '../../components';
 import { connect } from 'react-redux';
@@ -12,15 +12,32 @@ const API_Search = ({apiUrl,setApiUrl}) => {
     let response;
 
     useEffect(() => {
-        queryAPI();
+        async function firstQueryAPI(){
+            response = await axios.get(apiUrl,{
+                headers: {
+                    // 'X-API-Key':apiToken
+                }
+            });
+            setData(response.data != null ? response.data : [{},{}]);
+        }
+        firstQueryAPI();
     },[]);
+
+    async function queryAPI(){
+        response = await axios.get(apiUrl,{
+            headers: {
+                // 'X-API-Key':apiToken
+            }
+        });
+        setData(response.data != null ? response.data : [{},{}]);
+    };
 
     const [Url,setUrl] = useState('');
     // const [apiToken,setApiToken] = useState('');
 
-    function switchAPIUrl(){
+    async function switchAPIUrl(){
         setApiUrl({apiUrl:Url});
-        queryAPI();
+        await queryAPI();
     }
 
     function flattenObject(object){
@@ -30,14 +47,7 @@ const API_Search = ({apiUrl,setApiUrl}) => {
         return result;
     }
 
-    async function queryAPI(){
-        response = await axios.get(apiUrl,{
-            headers: {
-                // 'X-API-Key':apiToken
-            }
-        });
-        setData(response.data != null ? response.data : [{},{}]);
-    }
+    
 
     return(
         <Main>
